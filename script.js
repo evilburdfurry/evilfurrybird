@@ -1,3 +1,17 @@
+// Header frosted glass scroll detection
+const siteHeader = document.querySelector(".site-header");
+if (siteHeader) {
+  const onHeaderScroll = () => {
+    if (window.scrollY > 15) {
+      siteHeader.classList.add("is-scrolled");
+    } else {
+      siteHeader.classList.remove("is-scrolled");
+    }
+  };
+  window.addEventListener("scroll", onHeaderScroll, { passive: true });
+  onHeaderScroll();
+}
+
 const toggle = document.querySelector(".nav-toggle");
 const nav = document.querySelector(".site-nav");
 
