@@ -198,22 +198,37 @@ if (openModalBtn && requestModal) {
     }
   }, 160);
 
-  // Mouse sparkle trail triggers on mousemove with a tiny throttle distance
+  // Pointer & Touch sparkle trail triggers on mousemove, touchstart, and touchmove
   let lastMouseX = 0;
   let lastMouseY = 0;
 
-  window.addEventListener("mousemove", (e) => {
-    const dist = Math.hypot(e.clientX - lastMouseX, e.clientY - lastMouseY);
+  function spawnPointerSparkles(x, y) {
+    const dist = Math.hypot(x - lastMouseX, y - lastMouseY);
     if (dist > 10) {
-      // Spawn 1-2 star sparkles
-      sparkles.push(new Sparkle(e.clientX, e.clientY, true));
-      if (Math.random() > 0.6) {
-        sparkles.push(new Sparkle(e.clientX + (Math.random() - 0.5) * 8, e.clientY + (Math.random() - 0.5) * 8, true));
+      sparkles.push(new Sparkle(x, y, true));
+      if (Math.random() > 0.5) {
+        sparkles.push(new Sparkle(x + (Math.random() - 0.5) * 12, y + (Math.random() - 0.5) * 12, true));
       }
-      lastMouseX = e.clientX;
-      lastMouseY = e.clientY;
+      lastMouseX = x;
+      lastMouseY = y;
     }
+  }
+
+  window.addEventListener("mousemove", (e) => {
+    spawnPointerSparkles(e.clientX, e.clientY);
   });
+
+  const handleTouch = (e) => {
+    if (e.touches && e.touches.length > 0) {
+      for (let i = 0; i < e.touches.length; i++) {
+        const t = e.touches[i];
+        spawnPointerSparkles(t.clientX, t.clientY);
+      }
+    }
+  };
+
+  window.addEventListener("touchstart", handleTouch, { passive: true });
+  window.addEventListener("touchmove", handleTouch, { passive: true });
 
   function animate() {
     ctx.clearRect(0, 0, width, height);
