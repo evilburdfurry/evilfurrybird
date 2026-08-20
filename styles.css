@@ -190,7 +190,7 @@ a {
   border-radius: 26px;
   background:
     linear-gradient(to left, rgba(16, 10, 13, 0.96) 0%, rgba(16, 10, 13, 0.88) 36%, rgba(16, 10, 13, 0.42) 58%, transparent 78%),
-    url("assets/evilfurrybird-hero.png") center / cover no-repeat;
+    url("assets/evilfurrybird-hero.webp") center / cover no-repeat;
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
   overflow: hidden;
@@ -1157,7 +1157,7 @@ p {
     padding: 270px 18px 24px;
     background:
       linear-gradient(to top, rgba(16, 10, 13, 0.98) 0%, rgba(16, 10, 13, 0.92) 50%, rgba(16, 10, 13, 0.25) 75%, transparent 100%),
-      url("assets/evilfurrybird-hero.png") center top / cover no-repeat;
+      url("assets/evilfurrybird-hero.webp") center top / cover no-repeat;
     align-items: flex-end;
     justify-content: flex-start;
   }
