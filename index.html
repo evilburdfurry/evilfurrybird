@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>evilfurrybird | Cute Furry Art Commissions</title>
+  <meta name="description"
+    content="A warm, welcoming portfolio and commission site for cute furry art, character portraits, and cozy illustrations.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700&family=Nunito:wght@400;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <a class="brand mobile-brand" href="index.html" aria-label="evilfurrybird home">
+      <img src="assets/logo.png" alt="evilfurrybird logo" class="brand-logo">
+    </a>
+    <button class="nav-toggle" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a href="index.html" class="nav-link" aria-current="page">HOME</a>
+      <a href="gallery.html" class="nav-link">GALLERY</a>
+      <a class="brand desktop-brand" href="index.html" aria-label="evilfurrybird home">
+        <img src="assets/logo.png" alt="evilfurrybird logo" class="brand-logo">
+      </a>
+      <a href="commissions.html" class="nav-link">COMMS</a>
+      <a href="about.html" class="nav-link">ABOUT</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <h1>Soft & Sexy art for all your fursonas and favorite characters.</h1>
+        <p class="hero-text">Welcome to evilfurrybird, a cuddly little commission nest for expressive furry portraits
+          and character art.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="commissions.html">Book a Commission</a>
+          <a class="button secondary" href="gallery.html">View Gallery</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="status-banner paused">
+      <div class="status-indicator"></div>
+      <span class="status-label">Commissions: Paused</span>
+    </section>
+
+    <section class="queue-section info-box">
+      <div class="queue-header-row">
+        <h2>Commission Queue</h2>
+        <span class="queue-subtitle">Track your requests in my work queue!</span>
+      </div>
+
+      <div class="queue-kanban">
+        <div class="kanban-column">
+          <div class="kanban-header status-notstarted">
+            <span class="kanban-dot"></span>
+            <h3>Not Started</h3>
+          </div>
+          <div class="kanban-cards" id="queue-notstarted">
+            <div class="kanban-empty-state">Loading...</div>
+          </div>
+        </div>
+
+        <div class="kanban-column">
+          <div class="kanban-header status-queue">
+            <span class="kanban-dot"></span>
+            <h3>In Queue</h3>
+          </div>
+          <div class="kanban-cards" id="queue-inqueue">
+            <div class="kanban-empty-state">Loading...</div>
+          </div>
+        </div>
+
+        <div class="kanban-column">
+          <div class="kanban-header status-progress">
+            <span class="kanban-dot"></span>
+            <h3>In Progress</h3>
+          </div>
+          <div class="kanban-cards" id="queue-inprogress">
+            <div class="kanban-empty-state">Loading...</div>
+          </div>
+        </div>
+
+        <div class="kanban-column">
+          <div class="kanban-header status-completed">
+            <span class="kanban-dot"></span>
+            <h3>Completed</h3>
+          </div>
+          <div class="kanban-cards" id="queue-completed">
+            <div class="kanban-empty-state">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="split-section">
+      <div>
+        <p class="section-kicker">How it works</p>
+        <h2>A clear process from idea to finished stuff.</h2>
+        <p>Send the idea, references, and preferred package. After confirmation, I'll share sketches, gather feedback,
+          finish the color pass, and deliver the final files.</p>
+      </div>
+      <ol class="steps">
+        <li><span>01</span>Send references and the commission type</li>
+        <li><span>02</span>Approve the sketch and color direction</li>
+        <li><span>03</span>Receive polished final artwork</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>evilfurrybird</p>
+    <div>
+      <a href="mailto:evilfurrybirdart@gmail.com" class="footer-email">evilfurrybirdart@gmail.com</a>
+      <a href="https://www.instagram.com/evilfurrybird" target="_blank" rel="noreferrer" aria-label="Visit Instagram">
+        <svg class="footer-icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+        </svg>
+      </a>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
