@@ -310,11 +310,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <label>Tier Title</label>
             <input type="text" class="admin-input title-val" value="${escapeHTML(tier.title || '')}" required>
           </div>
-          <div class="form-group">
-            <label>Subtitle / Details</label>
-            <input type="text" class="admin-input subtitle-val" value="${escapeHTML(tier.subtitle || '')}">
-          </div>
-          <button type="submit" class="button primary btn-sm">Save Price & Details</button>
+          <button type="submit" class="button primary btn-sm">Save Price</button>
         </form>
       `;
       adminPricingGrid.appendChild(card);
@@ -326,20 +322,19 @@ document.addEventListener("DOMContentLoaded", () => {
         const id = form.getAttribute("data-id");
         const newPrice = parseFloat(form.querySelector(".price-val").value);
         const newTitle = form.querySelector(".title-val").value.trim();
-        const newSubtitle = form.querySelector(".subtitle-val").value.trim();
 
         const submitBtn = form.querySelector("button[type='submit']");
         submitBtn.disabled = true;
         submitBtn.textContent = "Saving...";
 
         try {
-          await updatePriceTier(id, { price: newPrice, title: newTitle, subtitle: newSubtitle });
-          showToast("Price tier updated live!");
+          await updatePriceTier(id, { price: newPrice, title: newTitle });
+          showToast("Price updated live!");
         } catch (err) {
           showToast(`Update failed: ${err.message}`, true);
         } finally {
           submitBtn.disabled = false;
-          submitBtn.textContent = "Save Price & Details";
+          submitBtn.textContent = "Save Price";
         }
       });
     });
