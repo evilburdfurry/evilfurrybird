@@ -38,16 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
   async function checkAuthSession() {
     const client = getSupabaseClient();
     
-    // Check if passcode session exists
-    const localPasscode = localStorage.getItem("evilfurrybird_admin_auth");
-    if (localPasscode === "authenticated") {
-      if (loginSection) loginSection.style.display = "none";
-      if (dashboardSection) dashboardSection.style.display = "block";
-      if (userEmailDisplay) userEmailDisplay.textContent = "Artist (Admin)";
-      loadDashboardData();
-      return;
-    }
-
     if (!client) {
       if (loginSection) loginSection.style.display = "flex";
       if (dashboardSection) dashboardSection.style.display = "none";
@@ -93,20 +83,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const client = getSupabaseClient();
 
       try {
-        // First check passcode fallback
-        if (password === "evilfurrybird" || password === "admin" || email === "evilfurrybird") {
-          localStorage.setItem("evilfurrybird_admin_auth", "authenticated");
-          showToast("Signed in successfully via Passcode! ✨");
-          await checkAuthSession();
-          return;
-        }
-
-        // Attempt Supabase Auth
         if (client) {
           const { data, error } = await client.auth.signInWithPassword({ email, password });
           if (error) {
             if (error.message.toLowerCase().includes("email not confirmed")) {
-              throw new Error("Email not confirmed in Supabase! Go to Supabase Dashboard -> Authentication -> Users, click your email user, and select 'Confirm Email'. Or sign in using passcode 'evilfurrybird' below.");
+              throw new Error("Email not confirmed in Supabase! Go to Supabase Dashboard -> Authentication -> Users, click your email user, and select 'Confirm Email'.");
             }
             throw error;
           }
@@ -133,15 +114,6 @@ document.addEventListener("DOMContentLoaded", () => {
           loginBtn.textContent = "Sign In to Dashboard";
         }
       }
-    });
-  }
-
-  const passcodeBtn = document.getElementById("passcode-login-btn");
-  if (passcodeBtn) {
-    passcodeBtn.addEventListener("click", () => {
-      localStorage.setItem("evilfurrybird_admin_auth", "authenticated");
-      showToast("Unlocked via Passcode! ✨");
-      checkAuthSession();
     });
   }
 
