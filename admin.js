@@ -93,26 +93,33 @@ document.addEventListener("DOMContentLoaded", () => {
       const client = getSupabaseClient();
 
       try {
-        // Option A: If Supabase client exists, attempt Supabase Auth
-        if (client) {
-          const { data, error } = await client.auth.signInWithPassword({ email, password });
-          if (!error && data && data.session) {
-            showToast("Welcome back! Loading dashboard... ✨");
-            await checkAuthSession();
-            return;
-          }
-        }
-
-        // Option B: Passcode / Local Admin fallback if email or password matches artist password or passcode
+        // First check passcode fallback
         if (password === "evilfurrybird" || password === "admin" || email === "evilfurrybird") {
           localStorage.setItem("evilfurrybird_admin_auth", "authenticated");
-          showToast("Signed in successfully! ✨");
+          showToast("Signed in successfully via Passcode! ✨");
           await checkAuthSession();
           return;
         }
 
-        // If auth failed
-        throw new Error("Invalid email or password. (If you haven't created a Supabase Auth user yet in your Supabase Dashboard, use passcode 'evilfurrybird' to log in).");
+        // Attempt Supabase Auth
+        if (client) {
+          const { data, error } = await client.auth.signInWithPassword({ email, password });
+          if (error) {
+            if (error.message.toLowerCase().includes("email not confirmed")) {
+              throw new Error("Email not confirmed in Supabase! Go to Supabase Dashboard -> Authentication -> Users, click your email user, and select 'Confirm Email'. Or sign in using passcode 'evilfurrybird' below.");
+            }
+            throw error;
+          }
+          if (data && data.session) {
+            showToast("Welcome back! Loading dashboard... ✨");
+            await checkAuthSession();
+            return;
+          }
+        } else {
+          throw new Error("Supabase client is not initialized. Please check your keys in supabase.js.");
+        }
+
+        throw new Error("Invalid email or password.");
 
       } catch (err) {
         if (loginError) {
