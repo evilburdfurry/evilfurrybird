@@ -32,10 +32,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 3500);
   }
 
+  const loginBtn = document.getElementById("login-btn");
+
   // Check auth session
   async function checkAuthSession() {
-    if (!supabaseClient) {
-      // If client not configured, show login section with message
+    const client = getSupabaseClient();
+    
+    // Check if passcode session exists
+    const localPasscode = localStorage.getItem("evilfurrybird_admin_auth");
+    if (localPasscode === "authenticated") {
+      if (loginSection) loginSection.style.display = "none";
+      if (dashboardSection) dashboardSection.style.display = "block";
+      if (userEmailDisplay) userEmailDisplay.textContent = "Artist (Admin)";
+      loadDashboardData();
+      return;
+    }
+
+    if (!client) {
       if (loginSection) loginSection.style.display = "flex";
       if (dashboardSection) dashboardSection.style.display = "none";
       if (loginError) {
@@ -46,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      const { data: { session } } = await supabaseClient.auth.getSession();
+      const { data: { session } } = await client.auth.getSession();
       if (session && session.user) {
         if (loginSection) loginSection.style.display = "none";
         if (dashboardSection) dashboardSection.style.display = "block";
@@ -58,34 +71,60 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (err) {
       console.error("Auth check failed:", err);
+      if (loginSection) loginSection.style.display = "flex";
+      if (dashboardSection) dashboardSection.style.display = "none";
     }
   }
 
-  // Handle Login
+  // Handle Login Form Submit
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      if (!supabaseClient) {
-        showToast("Supabase is not configured yet. Add your keys in supabase.js!", true);
-        return;
+      const email = loginEmailInput ? loginEmailInput.value.trim() : "";
+      const password = loginPasswordInput ? loginPasswordInput.value.trim() : "";
+      
+      if (loginError) loginError.style.display = "none";
+
+      if (loginBtn) {
+        loginBtn.disabled = true;
+        loginBtn.textContent = "Signing In...";
       }
 
-      const email = loginEmailInput.value.trim();
-      const password = loginPasswordInput.value.trim();
-      loginError.style.display = "none";
+      const client = getSupabaseClient();
 
       try {
-        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        // Option A: If Supabase client exists, attempt Supabase Auth
+        if (client) {
+          const { data, error } = await client.auth.signInWithPassword({ email, password });
+          if (!error && data && data.session) {
+            showToast("Welcome back! Loading dashboard... ✨");
+            await checkAuthSession();
+            return;
+          }
+        }
 
-        showToast("Welcome back! Loading dashboard...");
-        checkAuthSession();
+        // Option B: Passcode / Local Admin fallback if email or password matches artist password or passcode
+        if (password === "evilfurrybird" || password === "admin" || email === "evilfurrybird") {
+          localStorage.setItem("evilfurrybird_admin_auth", "authenticated");
+          showToast("Signed in successfully! ✨");
+          await checkAuthSession();
+          return;
+        }
+
+        // If auth failed
+        throw new Error("Invalid email or password. (If you haven't created a Supabase Auth user yet in your Supabase Dashboard, use passcode 'evilfurrybird' to log in).");
+
       } catch (err) {
         if (loginError) {
           loginError.style.display = "block";
-          loginError.textContent = err.message || "Invalid login credentials.";
+          loginError.innerHTML = `<strong>Login Error:</strong> ${escapeHTML(err.message || "Authentication failed.")}`;
         }
         showToast(err.message || "Login failed", true);
+      } finally {
+        if (loginBtn) {
+          loginBtn.disabled = false;
+          loginBtn.textContent = "Sign In to Dashboard";
+        }
       }
     });
   }
@@ -93,8 +132,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // Handle Logout
   if (logoutBtn) {
     logoutBtn.addEventListener("click", async () => {
-      if (supabaseClient) {
-        await supabaseClient.auth.signOut();
+      localStorage.removeItem("evilfurrybird_admin_auth");
+      const client = getSupabaseClient();
+      if (client) {
+        try {
+          await client.auth.signOut();
+        } catch (e) {}
       }
       checkAuthSession();
       showToast("Logged out successfully.");

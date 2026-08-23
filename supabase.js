@@ -6,19 +6,29 @@
 const SUPABASE_URL = "https://erzitydtbvkqkyfqtaoo.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVyeml0eWR0YnZrcWt5ZnF0YW9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc0OTc0MTcsImV4cCI6MjEwMzA3MzQxN30.V_fZ8S27xl5uZQGN3jPJFNJhJVJ62KNSpYJY7IjjKKo";
 
-// Initialize Supabase Client if library is loaded
+// Initialize Supabase Client dynamically
 let supabaseClient = null;
-if (typeof supabase !== "undefined" && SUPABASE_URL !== "YOUR_SUPABASE_URL_HERE") {
-  supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function getSupabaseClient() {
+  if (supabaseClient) return supabaseClient;
+  if (typeof supabase !== "undefined" && SUPABASE_URL && SUPABASE_URL !== "YOUR_SUPABASE_URL_HERE") {
+    try {
+      supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } catch (err) {
+      console.warn("Could not create Supabase client:", err);
+    }
+  }
+  return supabaseClient;
 }
 
 /**
  * Fetch all gallery items ordered by display_order or created_at descending
  */
 async function fetchGalleryItems() {
-  if (!supabaseClient) return null;
+  const client = getSupabaseClient();
+  if (!client) return null;
   try {
-    const { data, error } = await supabaseClient
+    const { data, error } = await client
       .from("gallery_items")
       .select("*")
       .order("created_at", { ascending: false });
