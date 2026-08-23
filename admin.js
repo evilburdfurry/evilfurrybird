@@ -136,6 +136,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  const passcodeBtn = document.getElementById("passcode-login-btn");
+  if (passcodeBtn) {
+    passcodeBtn.addEventListener("click", () => {
+      localStorage.setItem("evilfurrybird_admin_auth", "authenticated");
+      showToast("Unlocked via Passcode! ✨");
+      checkAuthSession();
+    });
+  }
+
   // Handle Logout
   if (logoutBtn) {
     logoutBtn.addEventListener("click", async () => {

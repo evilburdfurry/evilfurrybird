@@ -48,9 +48,10 @@ async function fetchGalleryItems() {
  * Fetch commission prices
  */
 async function fetchCommissionPrices() {
-  if (!supabaseClient) return null;
+  const client = getSupabaseClient();
+  if (!client) return null;
   try {
-    const { data, error } = await supabaseClient
+    const { data, error } = await client
       .from("commission_prices")
       .select("*")
       .order("display_order", { ascending: true });
@@ -70,9 +71,10 @@ async function fetchCommissionPrices() {
  * Fetch global site settings (e.g. commission_status)
  */
 async function fetchSiteSettings() {
-  if (!supabaseClient) return null;
+  const client = getSupabaseClient();
+  if (!client) return null;
   try {
-    const { data, error } = await supabaseClient
+    const { data, error } = await client
       .from("site_settings")
       .select("*");
 
@@ -97,28 +99,29 @@ async function fetchSiteSettings() {
  * Upload a new image to Supabase Storage and insert a record into gallery_items
  */
 async function uploadGalleryArtwork(file, title) {
-  if (!supabaseClient) throw new Error("Supabase client is not configured yet. Please add your credentials in supabase.js");
+  const client = getSupabaseClient();
+  if (!client) throw new Error("Supabase client is not configured yet. Please add your credentials in supabase.js");
 
   const fileExt = file.name.split('.').pop();
   const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
   const filePath = `artwork/${fileName}`;
 
   // 1. Upload to Storage Bucket 'gallery-artwork'
-  const { error: uploadError } = await supabaseClient.storage
+  const { error: uploadError } = await client.storage
     .from("gallery-artwork")
     .upload(filePath, file);
 
   if (uploadError) throw uploadError;
 
   // 2. Get Public URL
-  const { data: urlData } = supabaseClient.storage
+  const { data: urlData } = client.storage
     .from("gallery-artwork")
     .getPublicUrl(filePath);
 
   const publicUrl = urlData.publicUrl;
 
-  # 3. Insert into gallery_items table
-  const { data: dbData, error: dbError } = await supabaseClient
+  // 3. Insert into gallery_items table
+  const { data: dbData, error: dbError } = await client
     .from("gallery_items")
     .insert([
       { title: title || "Untitled Artwork", image_url: publicUrl, storage_path: filePath }
@@ -133,10 +136,11 @@ async function uploadGalleryArtwork(file, title) {
  * Delete a gallery item from database and storage
  */
 async function deleteGalleryArtwork(id, storagePath) {
-  if (!supabaseClient) throw new Error("Supabase client is not configured.");
+  const client = getSupabaseClient();
+  if (!client) throw new Error("Supabase client is not configured.");
 
   // 1. Remove from database
-  const { error: dbError } = await supabaseClient
+  const { error: dbError } = await client
     .from("gallery_items")
     .delete()
     .eq("id", id);
@@ -145,7 +149,7 @@ async function deleteGalleryArtwork(id, storagePath) {
 
   // 2. Remove file from storage if path exists
   if (storagePath) {
-    await supabaseClient.storage
+    await client.storage
       .from("gallery-artwork")
       .remove([storagePath]);
   }
@@ -157,9 +161,10 @@ async function deleteGalleryArtwork(id, storagePath) {
  * Update commission price tier
  */
 async function updatePriceTier(id, updates) {
-  if (!supabaseClient) throw new Error("Supabase client is not configured.");
+  const client = getSupabaseClient();
+  if (!client) throw new Error("Supabase client is not configured.");
 
-  const { data, error } = await supabaseClient
+  const { data, error } = await client
     .from("commission_prices")
     .update(updates)
     .eq("id", id)
@@ -173,9 +178,10 @@ async function updatePriceTier(id, updates) {
  * Update site commission status ('open', 'paused', 'closed')
  */
 async function updateCommissionStatus(newStatus) {
-  if (!supabaseClient) throw new Error("Supabase client is not configured.");
+  const client = getSupabaseClient();
+  if (!client) throw new Error("Supabase client is not configured.");
 
-  const { data, error } = await supabaseClient
+  const { data, error } = await client
     .from("site_settings")
     .upsert({ key: "commission_status", value: newStatus })
     .select();
