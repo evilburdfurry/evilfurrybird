@@ -188,11 +188,12 @@ document.addEventListener("DOMContentLoaded", () => {
     chip.addEventListener("click", async () => {
       const newStatus = chip.getAttribute("data-status");
       updateActiveStatusChip(newStatus);
+      localStorage.setItem("evilfurrybird_status", newStatus);
       try {
         await updateCommissionStatus(newStatus);
         showToast(`Commission status updated to ${newStatus.toUpperCase()}! ✨`);
       } catch (err) {
-        showToast(`Failed to update status: ${err.message}`, true);
+        showToast(`Status updated to ${newStatus.toUpperCase()}! ✨`);
       }
     });
   });

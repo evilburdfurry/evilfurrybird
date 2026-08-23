@@ -485,24 +485,28 @@ async function initDynamicSupabaseData() {
   // 2. Dynamic Status Banner Loader
   const statusBanners = document.querySelectorAll(".status-banner");
   if (statusBanners.length > 0) {
+    let newStatus = localStorage.getItem("evilfurrybird_status");
     try {
       const settings = await fetchSiteSettings();
       if (settings && settings.commission_status) {
-        const newStatus = settings.commission_status.toLowerCase();
-        statusBanners.forEach(banner => {
-          banner.classList.remove("open", "paused", "closed");
-          banner.classList.add(newStatus);
-          
-          const labelEl = banner.querySelector(".status-label");
-          if (labelEl) {
-            if (newStatus === "open") labelEl.textContent = "COMMISSIONS: OPEN";
-            else if (newStatus === "closed") labelEl.textContent = "COMMISSIONS: CLOSED";
-            else labelEl.textContent = "COMMISSIONS: PAUSED";
-          }
-        });
+        newStatus = settings.commission_status.toLowerCase();
       }
     } catch (err) {
-      console.warn("Using static status banner fallback due to:", err);
+      console.warn("Using status banner fallback due to:", err);
+    }
+
+    if (newStatus) {
+      statusBanners.forEach(banner => {
+        banner.classList.remove("open", "paused", "closed");
+        banner.classList.add(newStatus);
+        
+        const labelEl = banner.querySelector(".status-label");
+        if (labelEl) {
+          if (newStatus === "open") labelEl.textContent = "COMMISSIONS: OPEN";
+          else if (newStatus === "closed") labelEl.textContent = "COMMISSIONS: CLOSED";
+          else labelEl.textContent = "COMMISSIONS: PAUSED";
+        }
+      });
     }
   }
 
