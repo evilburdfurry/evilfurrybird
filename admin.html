@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Dashboard | evilfurrybird</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700&family=Nunito:wght@400;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=10">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+  <header class="site-header">
+    <a class="brand mobile-brand" href="index.html" aria-label="evilfurrybird home">
+      <img src="assets/logo.webp" alt="evilfurrybird logo" class="brand-logo">
+    </a>
+    <button class="nav-toggle" aria-label="Open menu"
+      aria-expanded="false"><span></span><span></span><span></span></button>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a href="index.html" class="nav-link">HOME</a>
+      <a href="gallery.html" class="nav-link">GALLERY</a>
+      <a class="brand desktop-brand" href="index.html" aria-label="evilfurrybird home">
+        <img src="assets/logo.webp" alt="evilfurrybird logo" class="brand-logo">
+      </a>
+      <a href="commissions.html" class="nav-link">COMMS</a>
+      <a href="about.html" class="nav-link">ABOUT</a>
+    </nav>
+  </header>
+
+  <main class="page-shell">
+    <section class="page-heading">
+      <p class="eyebrow">artist admin portal</p>
+      <h1>Manage Your Nest</h1>
+    </section>
+
+    <!-- Login Card (Shown when not authenticated) -->
+    <section class="admin-login-container" id="admin-login-section">
+      <div class="admin-card login-card">
+        <span class="mini-label" style="display: block; margin-bottom: 8px; text-align: center;">Artist Login</span>
+        <h2>Welcome Back! 🌸</h2>
+        <p class="login-desc">Sign in with your Supabase account to update your gallery, adjust prices, or toggle commission status.</p>
+
+        <form id="login-form">
+          <div class="form-group">
+            <label for="login-email">Email Address</label>
+            <input type="email" id="login-email" placeholder="evilfurrybirdart@gmail.com" required class="admin-input">
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" placeholder="••••••••••••" required class="admin-input">
+          </div>
+          <button type="submit" class="button primary admin-btn" id="login-btn">Sign In to Dashboard</button>
+          <div id="login-error" class="admin-error-msg" style="display: none;"></div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Admin Control Center (Shown when authenticated) -->
+    <section class="admin-dashboard-container" id="admin-dashboard-section" style="display: none;">
+      
+      <!-- Top Action Bar & Logout -->
+      <div class="admin-header-bar">
+        <div class="user-badge">Logged in as <strong id="user-email-display">artist</strong></div>
+        <button class="button secondary btn-sm" id="logout-btn">Log Out</button>
+      </div>
+
+      <!-- 1. Commission Status Switcher -->
+      <section class="admin-section">
+        <div class="admin-section-header">
+          <h2>Commission Status</h2>
+          <p>Instantly update the live status banner shown across your home and commissions page.</p>
+        </div>
+        <div class="status-toggle-group">
+          <button type="button" class="status-chip status-chip-open" data-status="open">
+            <span class="dot"></span> OPEN
+          </button>
+          <button type="button" class="status-chip status-chip-paused" data-status="paused">
+            <span class="dot"></span> PAUSED
+          </button>
+          <button type="button" class="status-chip status-chip-closed" data-status="closed">
+            <span class="dot"></span> CLOSED
+          </button>
+        </div>
+      </section>
+
+      <!-- 2. Gallery Artwork Manager -->
+      <section class="admin-section">
+        <div class="admin-section-header">
+          <h2>Gallery Artwork Manager</h2>
+          <p>Upload new illustrations or delete old artwork from your live portfolio.</p>
+        </div>
+
+        <!-- Upload Form -->
+        <div class="admin-card upload-card">
+          <h3>Upload New Artwork</h3>
+          <form id="upload-artwork-form" class="upload-form">
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label for="artwork-file">Select Image File</label>
+                <input type="file" id="artwork-file" accept="image/*" required class="admin-input-file">
+              </div>
+              <div class="form-group flex-3">
+                <label for="artwork-title">Artwork Title / Character Name</label>
+                <input type="text" id="artwork-title" placeholder="e.g. Pink Bunny Sona Portrait" required class="admin-input">
+              </div>
+            </div>
+            <button type="submit" class="button primary admin-btn" id="upload-btn">Upload to Gallery ✨</button>
+          </form>
+        </div>
+
+        <!-- Live Gallery Items Grid -->
+        <div class="admin-gallery-preview-header">
+          <h3>Live Gallery Images (<span id="gallery-count">0</span>)</h3>
+        </div>
+        <div class="admin-gallery-grid" id="admin-gallery-grid">
+          <div class="admin-loading">Loading live gallery items...</div>
+        </div>
+      </section>
+
+      <!-- 3. Commission Pricing Manager -->
+      <section class="admin-section">
+        <div class="admin-section-header">
+          <h2>Commission Pricing & Packages</h2>
+          <p>Update your rates and package descriptions.</p>
+        </div>
+
+        <div class="admin-pricing-grid" id="admin-pricing-grid">
+          <div class="admin-loading">Loading price tiers...</div>
+        </div>
+      </section>
+
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>evilfurrybird admin</p>
+    <div>
+      <a href="index.html" class="footer-email">Back to main site</a>
+    </div>
+  </footer>
+
+  <div id="admin-toast" class="admin-toast" style="display: none;"></div>
+
+  <script src="supabase.js"></script>
+  <script src="script.js"></script>
+  <script src="admin.js"></script>
+</body>
+
+</html>

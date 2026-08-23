@@ -444,5 +444,104 @@ async function fetchQueueData() {
 // Run fetcher immediately since script loads at the bottom of the body
 fetchQueueData();
 
+// ==========================================
+// DYNAMIC SUPABASE DATA SYNC & RENDER
+// ==========================================
+
+async function initDynamicSupabaseData() {
+  if (typeof fetchGalleryItems !== "function") return;
+
+  // 1. Dynamic Gallery Loader
+  const galleryGrid = document.querySelector(".gallery-grid");
+  if (galleryGrid) {
+    try {
+      const items = await fetchGalleryItems();
+      if (items && items.length > 0) {
+        galleryGrid.innerHTML = "";
+        items.forEach(item => {
+          const article = document.createElement("article");
+          article.className = "art-card";
+          article.innerHTML = `<img loading="lazy" decoding="async" src="${item.image_url}" alt="${escapeHTML(item.title || 'Artwork')}" class="art-card-img">`;
+          galleryGrid.appendChild(article);
+        });
+        
+        // Re-bind Lightbox events for new dynamic gallery cards
+        const newArtCards = galleryGrid.querySelectorAll(".art-card");
+        if (typeof openLightbox === "function" && newArtCards.length > 0) {
+          newArtCards.forEach(card => {
+            card.style.cursor = "pointer";
+            card.setAttribute("tabindex", "0");
+            card.setAttribute("role", "button");
+            card.setAttribute("aria-label", "View artwork in full size");
+            card.addEventListener("click", () => openLightbox(card));
+          });
+        }
+      }
+    } catch (err) {
+      console.warn("Using static gallery fallback due to:", err);
+    }
+  }
+
+  // 2. Dynamic Status Banner Loader
+  const statusBanners = document.querySelectorAll(".status-banner");
+  if (statusBanners.length > 0) {
+    try {
+      const settings = await fetchSiteSettings();
+      if (settings && settings.commission_status) {
+        const newStatus = settings.commission_status.toLowerCase();
+        statusBanners.forEach(banner => {
+          banner.classList.remove("open", "paused", "closed");
+          banner.classList.add(newStatus);
+          
+          const labelEl = banner.querySelector(".status-label");
+          if (labelEl) {
+            if (newStatus === "open") labelEl.textContent = "COMMISSIONS: OPEN";
+            else if (newStatus === "closed") labelEl.textContent = "COMMISSIONS: CLOSED";
+            else labelEl.textContent = "COMMISSIONS: PAUSED";
+          }
+        });
+      }
+    } catch (err) {
+      console.warn("Using static status banner fallback due to:", err);
+    }
+  }
+
+  // 3. Dynamic Pricing Loader
+  const pricingGrid = document.querySelector(".pricing-grid");
+  if (pricingGrid) {
+    try {
+      const prices = await fetchCommissionPrices();
+      if (prices && prices.length > 0) {
+        const cards = pricingGrid.querySelectorAll(".price-card");
+        prices.forEach((tier, idx) => {
+          if (cards[idx]) {
+            const h2 = cards[idx].querySelector("h2");
+            if (h2 && tier.price !== undefined) {
+              h2.textContent = `$${tier.price}`;
+            }
+            const h3 = cards[idx].querySelector("h3");
+            if (h3 && tier.title) {
+              h3.textContent = tier.title;
+            }
+            const p = cards[idx].querySelector("p");
+            if (p && tier.subtitle) {
+              p.textContent = tier.subtitle;
+            }
+          }
+        });
+      }
+    } catch (err) {
+      console.warn("Using static pricing fallback due to:", err);
+    }
+  }
+}
+
+// Run dynamic Supabase loader after page load
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initDynamicSupabaseData);
+} else {
+  initDynamicSupabaseData();
+}
+
 
 
