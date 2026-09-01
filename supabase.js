@@ -109,16 +109,24 @@ async function uploadGalleryArtwork(file, title) {
   // 1. Upload to Storage Bucket 'gallery-artwork'
   const { error: uploadError } = await client.storage
     .from("gallery-artwork")
-    .upload(filePath, file);
+    .upload(filePath, file, {
+      cacheControl: '3600',
+      upsert: true
+    });
 
-  if (uploadError) throw uploadError;
+  if (uploadError) {
+    if (uploadError.message && (uploadError.message.includes("not found") || uploadError.message.includes("Bucket"))) {
+      throw new Error("Storage bucket 'gallery-artwork' not found in Supabase! Please run the SQL setup script or create a public bucket named 'gallery-artwork' under Storage.");
+    }
+    throw new Error(`Storage upload error: ${uploadError.message}`);
+  }
 
   // 2. Get Public URL
   const { data: urlData } = client.storage
     .from("gallery-artwork")
     .getPublicUrl(filePath);
 
-  const publicUrl = urlData.publicUrl;
+  const publicUrl = urlData ? urlData.publicUrl : "";
 
   // 3. Insert into gallery_items table
   const { data: dbData, error: dbError } = await client
@@ -128,8 +136,8 @@ async function uploadGalleryArtwork(file, title) {
     ])
     .select();
 
-  if (dbError) throw dbError;
-  return dbData[0];
+  if (dbError) throw new Error(`Database insert error: ${dbError.message}`);
+  return dbData ? dbData[0] : null;
 }
 
 /**

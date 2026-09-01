@@ -229,8 +229,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (uploadForm) {
     uploadForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const file = uploadFileInput.files[0];
-      const title = uploadTitleInput.value.trim();
+      const file = uploadFileInput ? uploadFileInput.files[0] : null;
+      const title = uploadTitleInput ? uploadTitleInput.value.trim() : "";
 
       if (!file) {
         showToast("Please select an image file to upload.", true);
@@ -246,6 +246,7 @@ document.addEventListener("DOMContentLoaded", () => {
         uploadForm.reset();
         loadGalleryManager();
       } catch (err) {
+        console.error("Gallery upload error:", err);
         showToast(`Upload failed: ${err.message}`, true);
       } finally {
         uploadBtn.disabled = false;
