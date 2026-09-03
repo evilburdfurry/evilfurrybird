@@ -21,6 +21,14 @@ function getSupabaseClient() {
   return supabaseClient;
 }
 
+// Timeout wrapper to ensure database queries never hang page loading
+function withTimeout(promise, ms = 2000) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error("Query timed out")), ms))
+  ]);
+}
+
 /**
  * Fetch all gallery items ordered by display_order or created_at descending
  */
@@ -28,10 +36,13 @@ async function fetchGalleryItems() {
   const client = getSupabaseClient();
   if (!client) return null;
   try {
-    const { data, error } = await client
-      .from("gallery_items")
-      .select("*")
-      .order("created_at", { ascending: false });
+    const { data, error } = await withTimeout(
+      client
+        .from("gallery_items")
+        .select("*")
+        .order("created_at", { ascending: false }),
+      2000
+    );
 
     if (error) {
       console.warn("Supabase fetch error for gallery_items:", error.message);
@@ -39,7 +50,7 @@ async function fetchGalleryItems() {
     }
     return data;
   } catch (err) {
-    console.warn("Could not connect to Supabase gallery_items:", err);
+    console.warn("Could not connect to Supabase gallery_items (using fallback):", err.message || err);
     return null;
   }
 }
@@ -51,10 +62,13 @@ async function fetchCommissionPrices() {
   const client = getSupabaseClient();
   if (!client) return null;
   try {
-    const { data, error } = await client
-      .from("commission_prices")
-      .select("*")
-      .order("display_order", { ascending: true });
+    const { data, error } = await withTimeout(
+      client
+        .from("commission_prices")
+        .select("*")
+        .order("display_order", { ascending: true }),
+      2000
+    );
 
     if (error) {
       console.warn("Supabase fetch error for commission_prices:", error.message);
@@ -62,7 +76,7 @@ async function fetchCommissionPrices() {
     }
     return data;
   } catch (err) {
-    console.warn("Could not connect to Supabase commission_prices:", err);
+    console.warn("Could not connect to Supabase commission_prices (using fallback):", err.message || err);
     return null;
   }
 }
@@ -74,9 +88,12 @@ async function fetchSiteSettings() {
   const client = getSupabaseClient();
   if (!client) return null;
   try {
-    const { data, error } = await client
-      .from("site_settings")
-      .select("*");
+    const { data, error } = await withTimeout(
+      client
+        .from("site_settings")
+        .select("*"),
+      2000
+    );
 
     if (error) {
       console.warn("Supabase fetch error for site_settings:", error.message);
@@ -90,7 +107,7 @@ async function fetchSiteSettings() {
     }
     return settings;
   } catch (err) {
-    console.warn("Could not connect to Supabase site_settings:", err);
+    console.warn("Could not connect to Supabase site_settings (using fallback):", err.message || err);
     return null;
   }
 }

@@ -419,24 +419,27 @@ function escapeHTML(str) {
 // Main fetcher
 async function fetchQueueData() {
   if (!GOOGLE_SHEET_CSV_URL) {
-    console.log("No Google Sheet CSV URL set. Displaying fallback/placeholder data.");
     renderQueueKanban(fallbackQueueData);
     return;
   }
 
+  const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+  const timeoutId = controller ? setTimeout(() => controller.abort(), 2000) : null;
+
   try {
-    const response = await fetch(GOOGLE_SHEET_CSV_URL);
+    const response = await fetch(GOOGLE_SHEET_CSV_URL, controller ? { signal: controller.signal } : {});
+    if (timeoutId) clearTimeout(timeoutId);
     if (!response.ok) throw new Error("Network response was not ok");
     const text = await response.text();
     const data = parseCSV(text);
     if (data && data.length > 0) {
       renderQueueKanban(data);
     } else {
-      console.warn("Parsed CSV was empty. Using fallback data.");
       renderQueueKanban(fallbackQueueData);
     }
   } catch (err) {
-    console.error("Failed to fetch queue data, falling back:", err);
+    if (timeoutId) clearTimeout(timeoutId);
+    console.warn("Google Sheet queue fetch timed out or failed, using instant fallback data.");
     renderQueueKanban(fallbackQueueData);
   }
 }
